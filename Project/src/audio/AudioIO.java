@@ -31,7 +31,7 @@ public class AudioIO {
   * Example of use:
   * TargetDataLine line = obtainInputLine("USB Audio Device", 8000);
      **/
-   public static TargetDataLine obtainInputLine(String mixerName,float sampleRate) throws Exception{
+   public static TargetDataLine obtainAudioInput(String mixerName,float sampleRate) throws Exception{
        AudioFormat format= new AudioFormat(sampleRate,8,1,true,true);
        Mixer.Info mixInfo = getMixerInfo(mixerName);
        Mixer mixer = AudioSystem.getMixer(mixInfo);
@@ -67,12 +67,12 @@ public class AudioIO {
         AudioFormat format = new AudioFormat(sampleRate, 8, 1, true, true);
         SourceDataLine Source=null;
         TargetDataLine Target=null;
-        AudioSignal sig = new AudioSignal(80000);
+        AudioSignal sig = new AudioSignal(8000);
         Boolean lineAvailable = false;
         for(Mixer.Info mixInf : AudioSystem.getMixerInfo()) {
             try {
                 Source = obtainAudioOutput(mixInf.getName(), sampleRate);
-                Target = obtainInputLine(mixInf.getName(), sampleRate);
+                Target = obtainAudioInput(mixInf.getName(), sampleRate);
                 lineAvailable = true;
             } catch (Exception e) {
                 lineAvailable = false;
@@ -86,5 +86,16 @@ public class AudioIO {
             sig.playTo(Source);
         }
      }
+     // some main() functions that have been used during debugging
+    /*
+    public static void main(String[] args){printAudioMixer()}
+
+    public static void main(String[] args){
+    String Mname = AudioSystem.getMixerInfo()[0].name()
+    getMixerInfo(Mname)
+    }
+
+     */
+
 
 }
