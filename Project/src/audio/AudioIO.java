@@ -31,7 +31,7 @@ public class AudioIO {
   * Example of use:
   * TargetDataLine line = obtainInputLine("USB Audio Device", 8000);
      **/
-   public static TargetDataLine obtainAudioInput(String mixerName,float sampleRate) throws Exception{
+   public static TargetDataLine obtainAudioInput(String mixerName,float sampleRate) throws LineUnavailableException{
        AudioFormat format= new AudioFormat(sampleRate,8,1,true,true);
        Mixer.Info mixInfo = getMixerInfo(mixerName);
        Mixer mixer = AudioSystem.getMixer(mixInfo);
@@ -53,7 +53,7 @@ public class AudioIO {
      public static TargetDataLine obtainAudioInput(String mixerName, int sampleRate){ ... }
       Return a line that's appropriate for playing sound to a loudspeaker. */
 
-    public static SourceDataLine obtainAudioOutput(String mixerName, int sampleRate) throws Exception {
+    public static SourceDataLine obtainAudioOutput(String mixerName, int sampleRate) throws LineUnavailableException {
         AudioFormat format = new AudioFormat(sampleRate, 8, 1, true, true);
         Mixer.Info mixInfo = getMixerInfo(mixerName);
         Mixer mixer = AudioSystem.getMixer(mixInfo);
