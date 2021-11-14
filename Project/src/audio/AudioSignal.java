@@ -104,12 +104,15 @@ public class AudioSignal {
         this.dBlevel = 20 * Math.log(med);
         return this.dBlevel;
     }
-   /* Complex[] computeFFT(){
-        Complex t = new Complex(1,1);
-        Complex e = new Complex(2,1);
-        Complex s = new Complex(1,2);
-        return
-    }*/
+    Complex[] computeFFT(){
+        //type conversion from double to complex
+        int N = this.sampleBuffer.length;
+        Complex[] x = new Complex[N];
+        for(int i =0;i<N;i++){
+            x[i].re=this.getSample(i);
+        }
+        return Complex.fft(x);
+    }
 
 }
 

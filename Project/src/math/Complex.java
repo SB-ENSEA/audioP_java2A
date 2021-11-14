@@ -44,7 +44,6 @@ public class Complex {
         if (n % 2 != 0) {
             throw new IllegalArgumentException("n is not a power of 2");
         }
-        // compute FFT of even terms
         Complex[] even = new Complex[n/2];
         for (int k = 0; k < n/2; k++) {
             even[k] = x[2*k];

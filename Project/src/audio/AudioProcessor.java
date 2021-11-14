@@ -13,9 +13,10 @@ public class AudioProcessor implements Runnable {
         * to the given SourceDataLine.
         * @param frameSize the size of the audio buffer. The shorter, the lower the latency. */
         public AudioProcessor(TargetDataLine audioInput, SourceDataLine audioOutput, int frameSize) throws LineUnavailableException {
-            AudioSignal audio = new AudioSignal(frameSize);
-            audio.recordFrom(audioInput);
-            audio.playTo(audioOutput);
+            this.inputSignal = new AudioSignal(frameSize);
+            this.outputSignal = new AudioSignal(frameSize);
+            this.audioInput = audioInput;
+            this.audioOutput = audioOutput;
         }
 
         /** Audio processing thread code. Basically an infinite loop that continuously fills the sample
@@ -23,26 +24,25 @@ public class AudioProcessor implements Runnable {
         * and finally copies data back to a SourceDataLine.*/
 
         @Override
-        public void run() {
+        public void run(){
         isThreadRunning = true;
         while (isThreadRunning) {
             inputSignal.recordFrom(audioInput);
             //playback with double volume:
             inputSignal.setdBlevel(2 * inputSignal.getdBlevel());
-            outputSignal.setFrom(inputSignal);
+            try{outputSignal.setFrom(inputSignal);}catch(Exception e){e.printStackTrace();}
             //distortion effect:
-       /*     double m=inputSignal.getSample(0);
+       /*   double m=inputSignal.getSample(0);
             for(int index=0; i<inputSignal.getFrameSize(),i++){
                 if inputSignal.getSample(i)<m{outputSignal.setSample(i)=inputSignal.getSample(i)*2;}
                 else {outputSignal.setSample(i)=inputSignal.getSample(i)/2;}
             }
-            */
+        */
             }
         }
          /** Tells the thread loop to break as soon as possible. This is an asynchronous process. */
         public void terminateAudioThread(){this.isThreadRunning=false;}
 
-        // todo here: all getters and setters
 
         /* an example of a possible test code */
         public static void main(String[] args) {
@@ -50,8 +50,8 @@ public class AudioProcessor implements Runnable {
                 SourceDataLine outLine = null;
                 AudioProcessor as = null;
                 try {
-                    inLine = AudioIO.obtainAudioInput("Default Audio Device", 16000);
-                    outLine = AudioIO.obtainAudioOutput("Default Audio Device", 16000);
+                    inLine = AudioIO.obtainAudioInput("Default Audio Device", 48000);
+                    outLine = AudioIO.obtainAudioOutput("Default Audio Device", 48000);
                     as = new AudioProcessor(inLine, outLine, 1024);
                 } catch (Exception e) {
                     e.printStackTrace();
