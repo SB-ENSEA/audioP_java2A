@@ -30,7 +30,7 @@ public class AudioProcessor implements Runnable {
             inputSignal.recordFrom(audioInput);
             //playback with double volume:
             inputSignal.setdBlevel(2 * inputSignal.getdBlevel());
-            try{outputSignal.setFrom(inputSignal);}catch(Exception e){e.printStackTrace();}
+            outputSignal.playTo(audioOutput);
             //distortion effect:
        /*   double m=inputSignal.getSample(0);
             for(int index=0; i<inputSignal.getFrameSize(),i++){
@@ -38,6 +38,8 @@ public class AudioProcessor implements Runnable {
                 else {outputSignal.setSample(i)=inputSignal.getSample(i)/2;}
             }
         */
+            //FFT computation
+
             }
         }
          /** Tells the thread loop to break as soon as possible. This is an asynchronous process. */

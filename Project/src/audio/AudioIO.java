@@ -1,5 +1,6 @@
 package audio;
 import javax.sound.sampled.*;
+import java.awt.image.AreaAveragingScaleFilter;
 import java.lang.annotation.Target;
 import java.util.Arrays;
 
@@ -15,7 +16,15 @@ public class AudioIO {
      .forEach(e -> System.out.println("- name=\"" + e.getName() + "\" description=\"" + e.getDescription() + " by " + e.getVendor() + "\""));
      }
 
-
+    public static String[] getMixerNames(){
+        int N =(AudioSystem.getMixerInfo()).length;
+        String[] L = new String[N];
+        Mixer.Info[] Info = AudioSystem.getMixerInfo();
+        for(int i=0; i<N; i++){
+            L[i]=(Info[i]).getName();
+        }
+        return L;
+    }
 
 
     /** @return a Mixer.Info whose name matches the given string.
@@ -32,11 +41,16 @@ public class AudioIO {
   * TargetDataLine line = obtainInputLine("USB Audio Device", 8000);
      **/
    public static TargetDataLine obtainAudioInput(String mixerName,float sampleRate) throws LineUnavailableException{
-       AudioFormat format= new AudioFormat(sampleRate,8,1,true,true);
+       AudioFormat format= new AudioFormat(sampleRate,24,1,true,true);
        Mixer.Info mixInfo = getMixerInfo(mixerName);
+       return AudioSystem.getTargetDataLine(format,mixInfo);
+
+       /*
        Mixer mixer = AudioSystem.getMixer(mixInfo);
        DataLine.Info  targetInfo=new DataLine.Info(TargetDataLine.class,format);
        return (TargetDataLine) mixer.getLine(Arrays.stream(mixer.getTargetLineInfo()).filter(lineInfo -> lineInfo.matches(targetInfo)).findFirst().get());
+       */
+
        /*for(Line lines : mixer.getTargetLines()){
            if(lines.info.matches(target){
                AudioSystem.getTargetDataLine(format,mixInfo);
@@ -54,11 +68,16 @@ public class AudioIO {
       Return a line that's appropriate for playing sound to a loudspeaker. */
 
     public static SourceDataLine obtainAudioOutput(String mixerName, int sampleRate) throws LineUnavailableException {
-        AudioFormat format = new AudioFormat(sampleRate, 24, 1, true, true);
+        AudioFormat format = new AudioFormat(sampleRate, 24, 2, true, true);
         Mixer.Info mixInfo = getMixerInfo(mixerName);
+        return AudioSystem.getSourceDataLine(format,mixInfo);
+
+        /*
         Mixer mixer = AudioSystem.getMixer(mixInfo);
-        DataLine.Info targetInfo = new DataLine.Info(SourceDataLine.class, format);
-        return (SourceDataLine) mixer.getLine(Arrays.stream(mixer.getSourceLineInfo()).filter(lineInfo -> lineInfo.matches(targetInfo)).findFirst().get());
+        DataLine.Info SourceInfo = new DataLine.Info(SourceDataLine.class, format);
+        return (SourceDataLine) mixer.getLine(Arrays.stream(mixer.getSourceLineInfo()).filter(lineInfo -> lineInfo.matches(SourceInfo)).findFirst().get());
+        */
+
     }
 
     public static void StopAudioProcessing(AudioProcessor process){
@@ -86,32 +105,18 @@ public class AudioIO {
         }catch(Exception e){System.out.println("no compatible lines in given mixers");}
     }
 
-    public static void main(String[] args){startAudioProcessing("blbl","blblbl",48000,48000*5);}
+   public static void main(String[] args){startAudioProcessing("Microphone (Realtek Audio)","Haut-parleurs / écouteurs (Realtek Audio)",8000,8000*5);}
 
      // some main() functions that have been used during debugging
-     /*public static void main(String[] args){
-         int sampleRate = 48000;
-         AudioFormat format = new AudioFormat(sampleRate, 24, 1, true, true);
+    /*public static void main(String[] args){
+         int sampleRate = 44100;
          SourceDataLine Source=null;
          TargetDataLine Target=null;
+         printAudioMixers();
          AudioSignal sig = new AudioSignal(48000);
-         Boolean lineAvailable = false;
-         for(Mixer.Info mixInf : AudioSystem.getMixerInfo()) {
-             try {
-                 System.out.println("test");
-                 Source = obtainAudioOutput(mixInf.getName(), sampleRate);
-                 Source.open();
-                 Target = obtainAudioInput(mixInf.getName(), sampleRate);
-                 Target.open();
-                 lineAvailable = true;
-             } catch (Exception e) {
-                 lineAvailable = false;
-             }
-         }
-         if (!lineAvailable){
-             System.out.println("no available lines");
-         }
-
+         try{
+         Source=obtainAudioOutput(getMixerNames()[4],sampleRate);
+         }catch(Exception e){e.printStackTrace();}
      }*/
 /*
     public static void main(String[] args){

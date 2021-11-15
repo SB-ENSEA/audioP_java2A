@@ -35,6 +35,10 @@ public class Complex {
                 this.re * b.im + this.im * b.re);
     }
 
+    public double abs(){
+        return Math.sqrt(Math.pow(this.re,2) + Math.pow(this.im,2));
+
+    }
 
     public static Complex[] fft(Complex[] x) {
         int n = x.length;

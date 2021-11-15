@@ -1,4 +1,5 @@
 package ui;
+import audio.AudioIO;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.Node;
@@ -29,13 +30,42 @@ public class Main extends Application {
     catch(Exception e) {e.printStackTrace();}
  }
  private Node createToolbar(){
+        Button button = new Button("Launch audio processing");
+        ToolBar tb = new ToolBar(button, new Separator());
+        Label lb1 = new Label("Frequency :");
+        Label lb2 = new Label("Hz");
+        Separator sp1 = new Separator();
+        Separator sp2 = new Separator();
+        Separator sp3 = new Separator();
+        Label lb3 = new Label("Frame size :");
+        Label lb4 = new Label("seconds");
+        Label lb5 = new Label("Input Mixer");
+        Label lb6 = new Label("Output Mixer");
+        ComboBox<Integer> cbfreq = new ComboBox<>();
+        cbfreq.getItems().addAll(48000,44100,24000,16000,8000);
+        ComboBox<Integer> cbframe = new ComboBox<>();
+        cbframe.getItems().addAll(8,4,2,1);
+        ComboBox<String> cbInputMix = new ComboBox<String>();
+        cbInputMix.getItems().addAll(AudioIO.getMixerNames());
+        ComboBox<String> cbOutputMix = new ComboBox<String>();
+        cbOutputMix.getItems().addAll(AudioIO.getMixerNames());
 
-        Button button = new Button("appuyez !");
-        ToolBar tb = new ToolBar(button, new Label("ceci est un label"), new Separator());
-        button.setOnAction(event -> System.out.println("appui!"));
-        ComboBox<String> cb = new ComboBox<>();
-        cb.getItems().addAll("Item 1", "Item 2", "Item 3");
-        tb.getItems().add(cb);
+
+        tb.getItems().add(lb1);
+        tb.getItems().add(cbfreq);
+        tb.getItems().add(lb2);
+        tb.getItems().add(sp1);
+        tb.getItems().add(lb3);
+        tb.getItems().add(cbframe);
+        tb.getItems().add(lb4);
+        tb.getItems().add(sp2);
+        tb.getItems().add(lb5);
+        tb.getItems().add(cbInputMix);
+        tb.getItems().add(sp3);
+        tb.getItems().add(lb6);
+        tb.getItems().add(cbOutputMix);
+
+        button.setOnAction(event -> AudioIO.startAudioProcessing(cbInputMix.getValue(),cbOutputMix.getValue(),cbfreq.getValue(),cbframe.getValue()*cbfreq.getValue()));
         return tb;
  }
 
