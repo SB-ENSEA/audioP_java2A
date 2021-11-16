@@ -4,10 +4,14 @@ import javax.sound.sampled.*;
 /** The main audio processing class, implemented as a Runnable so
  * as to be run in a separated execution Thread. */
 public class AudioProcessor implements Runnable {
-    private AudioSignal inputSignal, outputSignal;
+    private AudioSignal inputSignal, outputSignal,FFT;
     private TargetDataLine audioInput;
     private SourceDataLine audioOutput;
     private boolean isThreadRunning; // makes it possible to "terminate" thread
+    public boolean Computefft;
+    public boolean ComputeDistortion;
+    public boolean Playback;
+    public boolean ComputeEcho;
 
         /** Creates an AudioProcessor that takes input from the given TargetDataLine, and plays back
         * to the given SourceDataLine.
@@ -19,29 +23,60 @@ public class AudioProcessor implements Runnable {
             this.audioOutput = audioOutput;
         }
 
-        /** Audio processing thread code. Basically an infinite loop that continuously fills the sample
+    public AudioSignal getOutputSignal() {
+        return outputSignal;
+    }
+
+    /** Audio processing thread code. Basically an infinite loop that continuously fills the sample
          * buffer with audio data fed by a TargetDataLine and then applies some audio effect, if any,
         * and finally copies data back to a SourceDataLine.*/
 
         @Override
-        public void run(){
-        isThreadRunning = true;
-        while (isThreadRunning) {
-            inputSignal.recordFrom(audioInput);
-            //playback with double volume:
-            inputSignal.setdBlevel(2 * inputSignal.getdBlevel());
-            outputSignal.playTo(audioOutput);
-            //distortion effect:
-       /*   double m=inputSignal.getSample(0);
-            for(int index=0; i<inputSignal.getFrameSize(),i++){
-                if inputSignal.getSample(i)<m{outputSignal.setSample(i)=inputSignal.getSample(i)*2;}
-                else {outputSignal.setSample(i)=inputSignal.getSample(i)/2;}
-            }
-        */
-            //FFT computation
+        public void run() {
+            isThreadRunning = true;
+            while (isThreadRunning) {
+                inputSignal.recordFrom(audioInput);
+                //playback with double volume:
+                if (this.Playback) {
+                    inputSignal.setdBlevel(2 * inputSignal.getdBlevel());
+                    try {
+                        outputSignal.setFrom(inputSignal);
+                        outputSignal.playTo(audioOutput);
+                    }catch(Exception e){e.printStackTrace();}
+                }
+                //distortion effect:
+                if (this.ComputeDistortion) {
+                    double m = inputSignal.getSample(0);
+                    for (int index = 0; index < inputSignal.getFrameSize();index++){
+                        if(inputSignal.getSample(index) < m){
+                            outputSignal.setSample(index,inputSignal.getSample(index) * 2);
+                        }
+                        else{
+                            outputSignal.setSample(index,inputSignal.getSample(index) / 2);
+                        }
+                    }
+                }
+                //FFT computation:
+                if (this.Computefft) {
+                    for(int index =0; index < inputSignal.getFrameSize();index++){
+                        double[] fft = inputSignal.computeFFT();
+                        this.FFT.setSample(index,fft[index]);
+                    }
+                }
+                //Echo computation:
+                if (this.ComputeEcho) {
+
+                    for (int index = 0; index < inputSignal.getFrameSize();index++){
+                        outputSignal.setSample(index,inputSignal.getSample(index));
+                    }
+                    for (int index = inputSignal.getFrameSize() / 4; index < inputSignal.getFrameSize();index++){
+                        outputSignal.setSample(index, outputSignal.getSample(index) + inputSignal.getSample(index - inputSignal.getFrameSize()) / 2.0);
+                    }
+                }
 
             }
         }
+
          /** Tells the thread loop to break as soon as possible. This is an asynchronous process. */
         public void terminateAudioThread(){this.isThreadRunning=false;}
 
@@ -65,6 +100,5 @@ public class AudioProcessor implements Runnable {
                     outLine.start();
                 }catch(Exception e){e.printStackTrace();}
         new Thread(as).start();
-        System.out.println("A new thread has been created!");
         }
 }

@@ -90,7 +90,7 @@ public class AudioSignal {
         this.sampleBuffer[i] = value;
     }
 
-    int getFrameSize() {
+    public int getFrameSize() {
         return this.sampleBuffer.length;
     }
 
@@ -104,7 +104,7 @@ public class AudioSignal {
         this.dBlevel = 20 * Math.log(med);
         return this.dBlevel;
     }
-    void computeFFT(){
+    double[] computeFFT(){
         //type conversion from double to complex
         int N = this.sampleBuffer.length;
         Complex[] x = new Complex[N];
@@ -113,7 +113,9 @@ public class AudioSignal {
             x[i].re=this.getSample(i);
         }
         Complex[] y = Complex.fft(x);
-        for(i=0;i<N;i++){this.sampleBuffer[i]=y[i].abs();}
+        double[] z = new double[N];
+        for(i=0;i<N;i++){z[i]=y[i].abs();}
+        return z;
     }
 
 }

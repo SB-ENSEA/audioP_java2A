@@ -1,7 +1,5 @@
 package audio;
 import javax.sound.sampled.*;
-import java.awt.image.AreaAveragingScaleFilter;
-import java.lang.annotation.Target;
 import java.util.Arrays;
 
 /** A collection of static utilities related to the audio system. */
@@ -84,7 +82,7 @@ public class AudioIO {
         process.terminateAudioThread();
     }
 
-    public static void startAudioProcessing(String inputMixer,String outputMixer, int sampleRate, int frameSize){
+    public static AudioProcessor startAudioProcessing(String inputMixer,String outputMixer, int sampleRate, int frameSize){
         AudioFormat format = new AudioFormat(sampleRate, 24, 1, true, true);
         SourceDataLine Source=null;
         TargetDataLine Target=null;
@@ -99,10 +97,9 @@ public class AudioIO {
             Target = obtainAudioInput(outputMixer, sampleRate);
             Target.start();
             Target.open();
-            AudioProcessor process = new AudioProcessor(Target,Source,frameSize);
-            Thread t = new Thread(process);
-            t.start();
+            return new AudioProcessor(Target,Source,frameSize);
         }catch(Exception e){System.out.println("no compatible lines in given mixers");}
+       return null;
     }
 
    public static void main(String[] args){startAudioProcessing("Microphone (Realtek Audio)","Haut-parleurs / écouteurs (Realtek Audio)",8000,8000*5);}
