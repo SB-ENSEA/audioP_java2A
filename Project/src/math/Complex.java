@@ -40,6 +40,7 @@ public class Complex {
 
     }
 
+    //we use fft as a method of complex as it is used only once in the code. We also are able to use all the Complex class methods directly
     public static Complex[] fft(Complex[] x) {
         int n = x.length;
         // base case

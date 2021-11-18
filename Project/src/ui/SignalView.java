@@ -11,12 +11,12 @@ public class SignalView extends LineChart<Number,Number> {
 
     private XYChart.Series<Number, Number> series;
 
-    public SignalView(Axis<Number> xAxis, Axis<Number> yAxis) {
+    public SignalView(Axis<Number> xAxis, Axis<Number> yAxis,String Title ,String labelX, String labelY) {
         super(xAxis, yAxis);
         this.series = new XYChart.Series<>();
-        super.setTitle("Plot of the audio signal");
-        xAxis.setLabel("Sample");
-        yAxis.setLabel("Value");
+        super.setTitle(Title);
+        xAxis.setLabel(labelX);
+        yAxis.setLabel(labelY);
         super.getData().add(series);
     }
 

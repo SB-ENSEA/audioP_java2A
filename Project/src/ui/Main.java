@@ -15,14 +15,16 @@ import sun.misc.Signal;
 public class Main extends Application {
 
     public AudioProcessor process;
-    public SignalView plot = new SignalView(new NumberAxis(), new NumberAxis());
+    public SignalView sigplot = new SignalView(new NumberAxis(), new NumberAxis(),"Plot of the audio signal","Sample", "value");
+    public SignalView fftplot = new SignalView(new NumberAxis(), new NumberAxis(),"Plot of the fft","Sample", "value");
 
  public void start(Stage primaryStage) {
     try {
             BorderPane root = new BorderPane();
             root.setTop(createToolbar());
             root.setBottom(createStatusbar());
-            root.setCenter(createMainContent());
+            root.setLeft(createSigContent());
+            root.setRight(createFftContent());
             Scene scene = new Scene(root,1500,800);
             primaryStage.setScene(scene);
             primaryStage.setTitle("The JavaFX audio processor");
@@ -32,6 +34,8 @@ public class Main extends Application {
  }
  private Node createToolbar(){
 
+        //We use a ToggleGroup of buttons to select one effect at a time as the effect cannot be combined
+        // it wouldn't make much sense to combine them anyway
         ToggleGroup group = new ToggleGroup();
         RadioButton fftbutton = new RadioButton("compute FFT");
         fftbutton.setToggleGroup(group);
@@ -65,6 +69,8 @@ public class Main extends Application {
         ComboBox<String> cbOutputMix = new ComboBox<String>();
         cbOutputMix.getItems().addAll(AudioIO.getMixerNames());
 
+        // filling the toolbar with the buttons and the comboBoxes to select the input args of the audio processing
+        //each button is separated by a separator for clearer view.
         tb.getItems().add(terminateButton);
         tb.getItems().add(sp4);
         tb.getItems().add(lb1);
@@ -87,7 +93,8 @@ public class Main extends Application {
         tb.getItems().add(distbutton);
         tb.getItems().add(echobutton);
 
-
+        //could have used a list of the effects instead of changing them one by one.
+        //Though we only have 4 effects and the code here is pretty repetitive anyway
         playbackbutton.setOnAction(event->{
             this.process.Playback=true;
             this.process.Computefft=false;
@@ -118,7 +125,11 @@ public class Main extends Application {
                     this.process = AudioIO.startAudioProcessing(cbInputMix.getValue(), cbOutputMix.getValue(), cbfreq.getValue(), cbframe.getValue() * cbfreq.getValue());
                     Thread t = new Thread(process);
                     t.start();
-                    plot.updateData((process.getOutputSignal()));
+                    sigplot.updateData((process.getOutputSignal()));
+                    if(process.Computefft){
+                        fftplot.updateData((process.getFFT()));
+
+                    }
                 });
 
 
@@ -133,9 +144,17 @@ public class Main extends Application {
         return statusbar;
  }
 
-        private Node createMainContent(){
+        private Node createSigContent(){
         Group g = new Group();
-        g.getChildren().add(plot);
+        g.getChildren().addAll(sigplot);
         return g;
         }
+
+        private Node createFftContent(){
+        Group g = new Group();
+        g.getChildren().addAll(fftplot);
+        return g;
+    }
+
+
 }

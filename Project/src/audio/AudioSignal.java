@@ -112,6 +112,7 @@ public class AudioSignal {
         for(i =0;i<N;i++){
             x[i].re=this.getSample(i);
         }
+        //I found no better implementation than to use 3 lists, not knowing if x = Complex.fft(x) would work
         Complex[] y = Complex.fft(x);
         double[] z = new double[N];
         for(i=0;i<N;i++){z[i]=y[i].abs();}

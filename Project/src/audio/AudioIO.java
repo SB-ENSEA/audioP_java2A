@@ -90,7 +90,6 @@ public class AudioIO {
         AudioSignal TargetSig = null;
         AudioSignal sig = new AudioSignal(frameSize);
         try{
-            System.out.println("test");
             Source = obtainAudioOutput(inputMixer, sampleRate);
             Source.open();
             Source.start();

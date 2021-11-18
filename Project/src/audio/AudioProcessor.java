@@ -16,16 +16,18 @@ public class AudioProcessor implements Runnable {
         /** Creates an AudioProcessor that takes input from the given TargetDataLine, and plays back
         * to the given SourceDataLine.
         * @param frameSize the size of the audio buffer. The shorter, the lower the latency. */
-        public AudioProcessor(TargetDataLine audioInput, SourceDataLine audioOutput, int frameSize) throws LineUnavailableException {
-            this.inputSignal = new AudioSignal(frameSize);
-            this.outputSignal = new AudioSignal(frameSize);
-            this.audioInput = audioInput;
-            this.audioOutput = audioOutput;
-        }
-
-    public AudioSignal getOutputSignal() {
-        return outputSignal;
+    public AudioProcessor(TargetDataLine audioInput, SourceDataLine audioOutput, int frameSize) throws LineUnavailableException {
+        this.inputSignal = new AudioSignal(frameSize);
+        this.outputSignal = new AudioSignal(frameSize);
+        this.audioInput = audioInput;
+        this.audioOutput = audioOutput;
     }
+
+    //Getter for the output signal
+    public AudioSignal getOutputSignal() {return outputSignal;}
+
+    //Getter for the FFT signal:
+    public AudioSignal getFFT(){return this.FFT;}
 
     /** Audio processing thread code. Basically an infinite loop that continuously fills the sample
          * buffer with audio data fed by a TargetDataLine and then applies some audio effect, if any,
@@ -79,6 +81,8 @@ public class AudioProcessor implements Runnable {
 
          /** Tells the thread loop to break as soon as possible. This is an asynchronous process. */
         public void terminateAudioThread(){this.isThreadRunning=false;}
+
+
 
 
         /* an example of a possible test code */
