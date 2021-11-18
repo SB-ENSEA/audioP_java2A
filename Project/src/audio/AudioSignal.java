@@ -1,5 +1,6 @@
 package audio;
 import math.Complex;
+import java.lang.*;
 import javax.sound.sampled.*;
 import java.util.ArrayList;
 
@@ -12,14 +13,23 @@ public class AudioSignal {
     private double[] sampleBuffer; // floating point representation of audio samples
     private double dBlevel; // current signal level
 
-    public void setdBlevel(double dBleveltarget) {
-        double dBlevelpresent = this.dBlevel;
-        double scaler = dBleveltarget / dBlevelpresent;
-        scaler = Math.pow(10, scaler / 20);
-        for (int i = 0; i < this.getFrameSize(); i++) {
-            this.setSample(i, scaler * this.getSample(i));
-        }
+
+
+
+    //a few simple methods to compute the other methods in this class
+    double getSample(int i) {
+        return this.sampleBuffer[i];
     }
+
+    void setSample(int i, double value) {
+        this.sampleBuffer[i] = value;
+    }
+
+    public int getFrameSize() {
+        return this.sampleBuffer.length;
+    }
+
+
 
     /**
      * Construct an AudioSignal that may contain up to "frameSize" samples.
@@ -36,7 +46,7 @@ public class AudioSignal {
      *
      * @param other other.length must not be lower than the length of this signal.
      */
-    public void setFrom(AudioSignal other) throws Exception {
+    public void setFrom(AudioSignal other) throws Exception { //This throws an Exception just for principle. In reality everytime we use setFrom the 'other' audio signal is right by design
         if (other.getFrameSize() < this.getFrameSize()) {
             Exception e = new Exception();
             throw e;
@@ -81,19 +91,19 @@ public class AudioSignal {
         return true;
     }
 
-
-    double getSample(int i) {
-        return this.sampleBuffer[i];
+    //Few choices have been made for this function : We define the Db level as the level of the average of the samples (see AudioSignal.getDblevel)
+    //this function computes the multiplicative coefficient to apply to each sample to reach the chosen Db value i.e. this method does nothing if the target db level is the same as the current db level
+    public void setdBlevel(double dBleveltarget) {
+        double dBlevelpresent = this.dBlevel;
+        double scaler = dBleveltarget / dBlevelpresent;
+        scaler = Math.pow(10, scaler / 20);
+        for (int i = 0; i < this.getFrameSize(); i++) {
+            this.setSample(i, scaler * this.getSample(i));
+        }
     }
 
-    void setSample(int i, double value) {
-        this.sampleBuffer[i] = value;
-    }
-
-    public int getFrameSize() {
-        return this.sampleBuffer.length;
-    }
-
+    //As said previously, the DB level is defined as the db level of the mean of samples.
+    //The value of the Db level is then closer to a 'volume' parameter that exist in a lot of other audio processing systems
     double getdBlevel() {
         double sum = 0;
         double med = 0;
@@ -104,20 +114,26 @@ public class AudioSignal {
         this.dBlevel = 20 * Math.log(med);
         return this.dBlevel;
     }
+
+
     double[] computeFFT(){
         //type conversion from double to complex
-        int N = this.sampleBuffer.length;
+        Integer N = this.sampleBuffer.length;
+        if(!AudioIO.IsPowOf2(N)){N= Integer.highestOneBit(N);}
         Complex[] x = new Complex[N];
         int i = 0;
         for(i =0;i<N;i++){
             x[i].re=this.getSample(i);
         }
-        //I found no better implementation than to use 3 lists, not knowing if x = Complex.fft(x) would work
+        //I found no better implementation than to use 3 lists, not knowing if x = Complex.fft(x) would work considering the fft code
         Complex[] y = Complex.fft(x);
         double[] z = new double[N];
         for(i=0;i<N;i++){z[i]=y[i].abs();}
         return z;
     }
+
+
+
 
 }
 

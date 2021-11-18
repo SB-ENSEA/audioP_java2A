@@ -14,6 +14,7 @@ public class AudioIO {
      .forEach(e -> System.out.println("- name=\"" + e.getName() + "\" description=\"" + e.getDescription() + " by " + e.getVendor() + "\""));
      }
 
+     //gets the name of the available mixers on the computer, for the comboBox of the interface
     public static String[] getMixerNames(){
         int N =(AudioSystem.getMixerInfo()).length;
         String[] L = new String[N];
@@ -29,7 +30,6 @@ public class AudioIO {
     Example of use: getMixerInfo("Macbook default output") */
 
     public static Mixer.Info getMixerInfo(String mixerName) {
-         // see how the use of streams is much more compact than for() loops!
          return Arrays.stream(AudioSystem.getMixerInfo())
          .filter(e -> e.getName().equalsIgnoreCase(mixerName)).findFirst().get();
          }
@@ -43,6 +43,9 @@ public class AudioIO {
        Mixer.Info mixInfo = getMixerInfo(mixerName);
        return AudioSystem.getTargetDataLine(format,mixInfo);
 
+
+       //tried to do it without AudioSystem.getTargetDataLine
+       // Listing all lines in the chosen mixer and checking if their format match.
        /*
        Mixer mixer = AudioSystem.getMixer(mixInfo);
        DataLine.Info  targetInfo=new DataLine.Info(TargetDataLine.class,format);
@@ -58,6 +61,17 @@ public class AudioIO {
        */
    }
 
+    //used to compute the fft
+    public static boolean IsPowOf2(int N){
+        int n=N;
+        while(n%2==0) {
+            if(n==64){ //any power of two works, we chose 64 because we know our signal could never be so small
+                return true;
+            }
+            n=N/2;
+        }
+        return false;
+    }
 
 
   /** @param mixerName a string that matches one of the available mixers.
@@ -70,6 +84,9 @@ public class AudioIO {
         Mixer.Info mixInfo = getMixerInfo(mixerName);
         return AudioSystem.getSourceDataLine(format,mixInfo);
 
+
+        //tried to do it without AudioSystem.getSourceDataLine
+        // Listing all lines in the chosen mixer and checking if their format match.
         /*
         Mixer mixer = AudioSystem.getMixer(mixInfo);
         DataLine.Info SourceInfo = new DataLine.Info(SourceDataLine.class, format);
@@ -80,7 +97,8 @@ public class AudioIO {
 
     public static void StopAudioProcessing(AudioProcessor process){
         process.terminateAudioThread();
-    }
+    } //kinda duplicate with audioProcessor.terminateAudioThread, especially when startAudioProcessing return an AudioProcessor.
+
 
     public static AudioProcessor startAudioProcessing(String inputMixer,String outputMixer, int sampleRate, int frameSize){
         AudioFormat format = new AudioFormat(sampleRate, 24, 1, true, true);
@@ -97,10 +115,13 @@ public class AudioIO {
             Target.start();
             Target.open();
             return new AudioProcessor(Target,Source,frameSize);
-        }catch(Exception e){System.out.println("no compatible lines in given mixers");}
+        }catch(Exception e){System.out.println("no compatible lines in given mixers");} //here we centralize any LineUnavailableException that we threw from our other methods
        return null;
     }
+    //we chose to return an Audioprocessor so we can have a single AudioProcessor instance for the Main class
 
+
+    //test main() that uses my computer's peripherals
    public static void main(String[] args){startAudioProcessing("Microphone (Realtek Audio)","Haut-parleurs / écouteurs (Realtek Audio)",8000,8000*5);}
 
      // some main() functions that have been used during debugging

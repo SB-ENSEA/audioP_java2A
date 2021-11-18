@@ -15,8 +15,8 @@ import sun.misc.Signal;
 public class Main extends Application {
 
     public AudioProcessor process;
-    public SignalView sigplot = new SignalView(new NumberAxis(), new NumberAxis(),"Plot of the audio signal","Sample", "value");
-    public SignalView fftplot = new SignalView(new NumberAxis(), new NumberAxis(),"Plot of the fft","Sample", "value");
+    public SignalView sigplot = new SignalView(new NumberAxis(), new NumberAxis(),"Plot of the audio signal","Sample", "value"); //graph of the processed signal
+    public SignalView fftplot = new SignalView(new NumberAxis(), new NumberAxis(),"Plot of the fft","Sample", "value"); // graph of the fft
 
  public void start(Stage primaryStage) {
     try {
@@ -120,9 +120,9 @@ public class Main extends Application {
              this.process.ComputeEcho=true;
          });
 
-
+        //Button to start the computation
         button.setOnAction(event -> {
-                    this.process = AudioIO.startAudioProcessing(cbInputMix.getValue(), cbOutputMix.getValue(), cbfreq.getValue(), cbframe.getValue() * cbfreq.getValue());
+                    this.process = AudioIO.startAudioProcessing(cbInputMix.getValue(), cbOutputMix.getValue(), cbfreq.getValue(), cbframe.getValue() * cbfreq.getValue()); //The choice of framesize is in seconds
                     Thread t = new Thread(process);
                     t.start();
                     sigplot.updateData((process.getOutputSignal()));

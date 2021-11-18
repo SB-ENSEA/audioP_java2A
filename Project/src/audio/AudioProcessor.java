@@ -8,6 +8,8 @@ public class AudioProcessor implements Runnable {
     private TargetDataLine audioInput;
     private SourceDataLine audioOutput;
     private boolean isThreadRunning; // makes it possible to "terminate" thread
+
+    //Boolean switches to know which audio effect to compute
     public boolean Computefft;
     public boolean ComputeDistortion;
     public boolean Playback;
@@ -16,7 +18,7 @@ public class AudioProcessor implements Runnable {
         /** Creates an AudioProcessor that takes input from the given TargetDataLine, and plays back
         * to the given SourceDataLine.
         * @param frameSize the size of the audio buffer. The shorter, the lower the latency. */
-    public AudioProcessor(TargetDataLine audioInput, SourceDataLine audioOutput, int frameSize) throws LineUnavailableException {
+    public AudioProcessor(TargetDataLine audioInput, SourceDataLine audioOutput, int frameSize) throws LineUnavailableException { //all exceptions are thrown to AudioIO methods instead of here
         this.inputSignal = new AudioSignal(frameSize);
         this.outputSignal = new AudioSignal(frameSize);
         this.audioInput = audioInput;
@@ -58,6 +60,10 @@ public class AudioProcessor implements Runnable {
                         }
                     }
                 }
+                // we used a simple distortion that increases/decreases volume depending on the first sample, better distortion could have been made
+                //by computing the FFT, then removing some frequences or shifting the fft, and lastly computing the inverse FFT.
+
+
                 //FFT computation:
                 if (this.Computefft) {
                     for(int index =0; index < inputSignal.getFrameSize();index++){
@@ -65,6 +71,8 @@ public class AudioProcessor implements Runnable {
                         this.FFT.setSample(index,fft[index]);
                     }
                 }
+
+
                 //Echo computation:
                 if (this.ComputeEcho) {
 
@@ -72,7 +80,7 @@ public class AudioProcessor implements Runnable {
                         outputSignal.setSample(index,inputSignal.getSample(index));
                     }
                     for (int index = inputSignal.getFrameSize() / 4; index < inputSignal.getFrameSize();index++){
-                        outputSignal.setSample(index, outputSignal.getSample(index) + inputSignal.getSample(index - inputSignal.getFrameSize()) / 2.0);
+                        outputSignal.setSample(index, outputSignal.getSample(index) + inputSignal.getSample(index - inputSignal.getFrameSize()) / 2.0); //we simple add to each sample the value of a previous sample (the shift is constant)
                     }
                 }
 

@@ -4,7 +4,7 @@ import java.lang.Math;
 public class Complex {
     public double re;
     public double im;
-    private static final Complex i=new Complex(0,1);
+    private static final Complex i=new Complex(0,1); // the complex i, it is final so it can't be modified and static because it is shared by all complexes.
     public Complex() {
         this(0, 0);
     }
@@ -14,14 +14,7 @@ public class Complex {
         im = i;
     }
 
-    public Complex Cexp(double z){
-        Complex res = new Complex();
-        res.re=Math.cos(z);
-        res.im=Math.sin(z);
-        return res;
-
-    }
-
+    //all methods for
     public Complex add(Complex b) {
         return new Complex(this.re + b.re, this.im + b.im);
     }
@@ -64,12 +57,18 @@ public class Complex {
         Complex[] y = new Complex[n];
         for (int k = 0; k < n/2; k++) {
             double kth = -2 * k * Math.PI / n;
-            Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
+            Complex wk = Cexp(kth);
             y[k]       = evenFFT[k].add(wk.mult(oddFFT[k]));
             y[k + n/2] = evenFFT[k].sub(wk.mult(oddFFT[k]));
         }
         return y;
     }
+
+    //method to compute the complex exponential of an argument z. not used right now.
+    public static Complex Cexp(double z){
+        return new Complex(Math.cos(z),Math.sin(z));
+    }
+
 
     @Override
     public String toString() {
