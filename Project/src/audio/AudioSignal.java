@@ -119,7 +119,7 @@ public class AudioSignal {
     double[] computeFFT(){
         //type conversion from double to complex
         Integer N = this.sampleBuffer.length;
-        if(!AudioIO.IsPowOf2(N)){N= Integer.highestOneBit(N);}
+        if(!AudioIO.IsPowOf2(N)){N= Integer.highestOneBit(N);} //Check that the signal has length of a power of 2. If not,remove the last samples
         Complex[] x = new Complex[N];
         int i = 0;
         for(i =0;i<N;i++){
